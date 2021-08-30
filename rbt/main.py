@@ -1,3 +1,12 @@
+# August 2021
+# Copyright Chris Frey
+# Original code based on this RBT tutorial: youtube.com/playlist?list=PLUrImIkywykzXCJ8Df-qF-Ohys0Cc-gNU
+
+# TODO:
+#   Verify correctness of insert and associated RBT rule verification
+#   Implement delete and associated RBT rule verification
+#   Implement search
+
 class RBT:
     class _Node:
         def __init__(self, key, value, parent):
@@ -48,13 +57,25 @@ class RBT:
 
     def _r_rotate(self, node):
         tmp = node.l
-        node.l = tmp.r
+        tmp.p = node.p
+        
+        if tmp.r:
+            node.l = tmp.r
+            tmp.r.p = node
+        
         tmp.r = node
+        node.p = tmp
 
     def _l_rotate(self, node):
         tmp = node.r
-        node.r = tmp.l
+        tmp.p = node.p
+
+        if tmp.l:
+            node.r = tmp.l
+            tmp.l.p = node
+
         tmp.l = node
+        node.p = tmp
     
     def _rotate_color_swap(self, node):
         node.is_b = True
