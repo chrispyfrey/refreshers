@@ -1,13 +1,13 @@
 # August 2021
 # Copyright Chris Frey
-# Original code based on this RBT tutorial: youtube.com/playlist?list=PLUrImIkywykzXCJ8Df-qF-Ohys0Cc-gNU
+# Original code based on this RBTree tutorial: youtube.com/playlist?list=PLUrImIkywykzXCJ8Df-qF-Ohys0Cc-gNU
 
 # TODO:
-#   Verify correctness of insert and associated RBT rule verification
-#   Implement delete and associated RBT rule verification
+#   Verify correctness of insert and associated RBTree rule verification
+#   Implement delete and associated RBTree rule verification
 #   Implement search
 
-class RBT:
+class RBTree:
     class _Node:
         def __init__(self, key, value, parent):
             self.l = self.r = None
@@ -36,8 +36,10 @@ class RBT:
                 self._rotate_color_swap(node.p)
             # Node is on left of parent - right-left rotate
             else:
+                # Passes node parent
                 self._r_rotate(node.p)
-                self._l_rotate(node.p.p)
+                # Passes what was node's grandparent before right rotate - now parent
+                self._l_rotate(node.p)
                 self._rotate_color_swap(node)
         # Node is on left of grandparent and aunt is black or null - rotate
         elif node.p == node.p.p.l and (not node.p.p.r or node.p.p.r.is_b):
@@ -47,8 +49,10 @@ class RBT:
                 self._rotate_color_swap(node.p)
             # Node is on right of parent - left-right rotate
             else:
+                # Passes node parent
                 self._l_rotate(node.p)
-                self._r_rotate(node.p.p)
+                # Passes what was node's grandparent before left rotate - now parent
+                self._r_rotate(node.p)
                 self._rotate_color_swap(node)
         # Aunt is red - color swap
         else:
