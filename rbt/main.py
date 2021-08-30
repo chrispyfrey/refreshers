@@ -10,7 +10,7 @@ class RBT:
     def __init__(self):
         self.root = None
     
-    def _verify_insert(self, node):
+    def _insert_rules(self, node):
         # Node is root
         if not node.p:
             node.is_b = True
@@ -19,8 +19,8 @@ class RBT:
             self._resolve_two_reds(node)
 
     def _resolve_two_reds(self, node):
-        # Node is on right of grandparent and aunt is black - rotate
-        if node.p == node.p.p.r and node.p.p.l.is_b:
+        # Node is on right of grandparent and aunt is black or null - rotate
+        if node.p == node.p.p.r and (not node.p.p.l or node.p.p.l.is_b):
             # Node is on right of parent - left rotate
             if node == node.p.r:
                 self._l_rotate(node.p.p)
@@ -30,8 +30,8 @@ class RBT:
                 self._r_rotate(node.p)
                 self._l_rotate(node.p.p)
                 self._rotate_color_swap(node)
-        # Node is on left of grandparent and aunt is black - rotate
-        elif node.p == node.p.p.l and node.p.p.r.is_b:
+        # Node is on left of grandparent and aunt is black or null - rotate
+        elif node.p == node.p.p.l and (not node.p.p.r or node.p.p.r.is_b):
             # Node is on left of parent - right rotate
             if node == node.p.l:
                 self._r_rotate(node.p.p)
@@ -44,7 +44,7 @@ class RBT:
         # Aunt is red - color swap
         else:
             self._color_swap(node.p.p)
-            self._verify_insert(node.p.p)
+            self._insert_rules(node.p.p)
 
     def _r_rotate(self, node):
         tmp = node.l
@@ -73,4 +73,4 @@ class RBT:
             n = n.r if n.k < key else n.l
 
         n = self._Node(key, value, p)
-        self._verify_insert(n)
+        self._insert_rules(n)
