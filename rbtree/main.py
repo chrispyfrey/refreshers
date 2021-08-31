@@ -3,7 +3,6 @@
 # Original code based on this RBTree tutorial: youtube.com/playlist?list=PLUrImIkywykzXCJ8Df-qF-Ohys0Cc-gNU
 
 # TODO:
-#   Verify correctness of insert and associated RBTree rule verification
 #   Implement delete and associated RBTree rule verification
 #   Implement search
 
