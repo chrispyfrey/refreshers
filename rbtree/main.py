@@ -35,15 +35,15 @@ class RBTree:
             # Node is on right of parent - left rotate
             if node == node.p.r:
                 print(f'{node.p.k} is right child of {node.p.p.k}\n{node.k} is right child of {node.p.k}')
-                self._l_rotate(node.p.p)
+                self._left_rotate(node.p.p)
                 self._rotate_color_correct(node.p)
             # Node is on left of parent - right-left rotate
             else:
                 print(f'{node.p.k} is right child of {node.p.p.k}\n{node.k} is left child of {node.p.k}')
                 # Passes node parent
-                self._r_rotate(node.p)
+                self._right_rotate(node.p)
                 # Passes what was node's grandparent before right rotate - now parent
-                self._l_rotate(node.p)
+                self._left_rotate(node.p)
                 self._rotate_color_correct(node)
         # Node is on left of grandparent and aunt is black or null - rotate
         elif node.p == node.p.p.l and (not node.p.p.r or node.p.p.r.is_b):
@@ -51,23 +51,24 @@ class RBTree:
             # Node is on left of parent - right rotate
             if node == node.p.l:
                 print(f'{node.p.k} is left child of {node.p.p.k}\n{node.k} is left child of {node.p.k}')
-                self._r_rotate(node.p.p)
+                self._right_rotate(node.p.p)
                 self._rotate_color_correct(node.p)
             # Node is on right of parent - left-right rotate
             else:
                 print(f'{node.p.k} is left child of {node.p.p.k}\n{node.k} is right child of {node.p.k}')
                 # Passes node parent
-                self._l_rotate(node.p)
+                self._left_rotate(node.p)
                 # Passes what was node's grandparent before left rotate - now parent
-                self._r_rotate(node.p)
+                self._right_rotate(node.p)
                 self._rotate_color_correct(node)
         # Aunt is red - color swap
         else:
             print(f'{node.k} aunt is red - color swap')
             self._color_swap(node.p.p)
+            # Recursive call
             self._insert_rules(node.p.p)
 
-    def _r_rotate(self, node):
+    def _right_rotate(self, node):
         tmp = node.l
         node.l = tmp.r
         tmp.r = node
@@ -87,7 +88,7 @@ class RBTree:
         print(f'Right rotate on: {node.k}')
         print(f'{node.k} parent is now {node.p.k}')
 
-    def _l_rotate(self, node):
+    def _left_rotate(self, node):
         tmp = node.r
         node.r = tmp.l
         tmp.l = node
