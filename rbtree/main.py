@@ -42,7 +42,7 @@ class RBTree:
             else:
                 print(f'{node.p.k} is right child of {node.p.p.k}\n{node.k} is left child of {node.p.k}')
                 # Passes node parent
-                self._r_rotate(node.p, double=True)
+                self._r_rotate(node.p)
                 # Passes what was node's grandparent before right rotate - now parent
                 self._l_rotate(node.p)
                 self._rotate_color_correct(node)
@@ -58,7 +58,7 @@ class RBTree:
             else:
                 print(f'{node.p.k} is left child of {node.p.p.k}\n{node.k} is right child of {node.p.k}')
                 # Passes node parent
-                self._l_rotate(node.p, double=True)
+                self._l_rotate(node.p)
                 # Passes what was node's grandparent before left rotate - now parent
                 self._r_rotate(node.p)
                 self._rotate_color_correct(node)
@@ -68,17 +68,16 @@ class RBTree:
             self._color_swap(node.p.p)
             self._insert_rules(node.p.p)
 
-    # Set double flag to true if call first rotation of a double rotation
-    def _r_rotate(self, node, double=False):
+    def _r_rotate(self, node):
         tmp = node.l
         node.l = tmp.r
         tmp.r = node
 
         if node.p:
-            if double:
-                node.p.r = tmp
-            else:
+            if tmp.k < node.p.k:
                 node.p.l = tmp
+            else:
+                node.p.r = tmp
 
         tmp.p = node.p
         node.p = tmp
@@ -89,14 +88,13 @@ class RBTree:
         print(f'Right rotate on: {node.k}')
         print(f'{node.k} parent is now {node.p.k}')
 
-    # Set double flag to true if call is first rotation of a double rotation
-    def _l_rotate(self, node, double=False):
+    def _l_rotate(self, node):
         tmp = node.r
         node.r = tmp.l
         tmp.l = node
 
         if node.p:
-            if double:
+            if tmp.k < node.p.k:
                 node.p.l = tmp
             else:
                 node.p.r = tmp
@@ -149,7 +147,7 @@ class RBTree:
         print('')
 
 rbt = RBTree()
-test_nums = [22, 39, 34]
+test_nums = [34, 39, 28, 22, 11, 24, 27, 30, 29]
 
 for t_n in test_nums:
     rbt.insert(t_n, None)
