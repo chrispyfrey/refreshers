@@ -4,7 +4,6 @@
 
 # TODO:
 #   Implement delete and associated RBTree rule verification
-#   Implement search
 
 class RBTree:
     class _Node:
@@ -17,6 +16,7 @@ class RBTree:
 
     def __init__(self):
         self.root = None
+        self.size = 0
     
     def _insert_rules(self, node):
         # Node is root
@@ -143,8 +143,33 @@ class RBTree:
             print(f'Inserting: {self.root.k}\n{self.root.k} is root')
 
         self._insert_rules(node)
+        self.size += 1
 
         print('')
+
+    def _get_node(self, key):
+        node = self.root
+
+        while node.k != key:
+            node = node.l if key < node.k else node.r
+
+        return node
+
+    def remove(self, key):
+        node = self._get_node(key)
+
+        self._remove_black(node) if node.is_b else self._remove_red(node)
+
+    def get(self, key):
+        node = self.root
+
+        while node.k != key:
+            node = node.l if key < node.k else node.r
+
+        return node.v
+
+    def size(self):
+        return self.size
 
 rbt = RBTree()
 test_nums = [34, 39, 28, 22, 11, 24, 27, 30, 29]
