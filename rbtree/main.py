@@ -1,9 +1,15 @@
 # August 2021
 # Copyright Chris Frey
-# Original code based on this RBTree tutorial: youtube.com/playlist?list=PLUrImIkywykzXCJ8Df-qF-Ohys0Cc-gNU
+# General structure and insert function based on: youtube.com/playlist?list=PLUrImIkywykzXCJ8Df-qF-Ohys0Cc-gNU
+# Remove function is original, but is likely not novel
 
 # TODO:
-#   Implement delete and associated RBTree rule verification
+#   Implement remove node:
+#       Implement remove red node
+#       Implement remove black node
+#   Test/verify correctness of node removal
+#   Fix get function
+#   Fix _get_node function
 
 class RBTree:
     class _Node:
@@ -120,6 +126,61 @@ class RBTree:
         node.is_b = False
         node.l.is_b = node.r.is_b = True
 
+    # Needs reworked to deal with edge cases: Key not in tree, empty tree
+    def _get_node(self, key):
+        node = self.root
+
+        while node.k != key:
+            node = node.l if key < node.k else node.r
+
+        return node
+
+    def _swap_nodes(self, n1, n2):
+        pass
+
+    def _nord_predecessor(self, node):
+        n = node.l
+        depth = 0
+        
+        if n:
+            depth += 1
+            while n.r:
+                n = n.r
+                depth += 1
+
+        return (n, depth)
+
+    def _nord_successor(self, node):
+        n = node.r
+        depth = 0
+
+        if n:
+            depth += 1
+            while n.l:
+                n = n.l
+                depth += 1
+
+        return (n, depth)
+
+    def _remove_red(self, node):
+        # Leaf
+        if node.l == node.r:
+            if node.p.l == node:
+                node.p.l = None
+            else:
+                node.p.r = None
+        # Two black children
+        else:
+            # Get in-order calls could be run in parallel
+            pred, pred_dpth = self._nord_predecessor(node)
+            succ, succ_dpth = self._nord_successor(node)
+
+            if succ_dpth == pred_dpth:
+                    self._remove_black(succ) if succ.is_b else self._remove_red(succ)
+
+    def _remove_black(self, node):
+        pass
+
     def insert(self, key, value):
         parent = None
         node = self.root
@@ -147,26 +208,19 @@ class RBTree:
 
         print('')
 
-    def _get_node(self, key):
-        node = self.root
-
-        while node.k != key:
-            node = node.l if key < node.k else node.r
-
-        return node
-
     def remove(self, key):
         node = self._get_node(key)
-
         self._remove_black(node) if node.is_b else self._remove_red(node)
+        self.size -= 1
 
+    # Needs reworked to deal with edge cases: Key not in tree, empty tree
     def get(self, key):
         node = self.root
 
         while node.k != key:
             node = node.l if key < node.k else node.r
 
-        return node.v
+        return node
 
     def size(self):
         return self.size
