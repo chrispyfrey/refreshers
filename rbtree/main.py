@@ -5,11 +5,8 @@
 
 # TODO:
 #   Implement remove node:
-#       Implement remove red node
 #       Implement remove black node
 #   Test/verify correctness of node removal
-#   Fix get function
-#   Fix _get_node function
 
 class RBTree:
     class _Node:
@@ -126,18 +123,23 @@ class RBTree:
         node.is_b = False
         node.l.is_b = node.r.is_b = True
 
-    # Needs reworked to deal with edge cases: Key not in tree, empty tree
     def _get_node(self, key):
-        node = self.root
+        # Non-empty tree
+        if self.root:
+            node = self.root
 
-        while node.k != key:
-            node = node.l if key < node.k else node.r
-
-        return node
-
-    def _swap_nodes(self, n1, n2):
-        pass
-
+            while node.k != key:
+                node = node.l if key < node.k else node.r
+                
+                # Key not in tree
+                if not node: 
+                    return None
+            # Key found
+            return node
+        # Empty tree
+        else:
+            return None
+    
     def _nord_predecessor(self, node):
         n = node.l
         depth = 0
@@ -162,21 +164,24 @@ class RBTree:
 
         return (n, depth)
 
-    def _remove_red(self, node):
-        # Leaf
-        if node.l == node.r:
-            if node.p.l == node:
-                node.p.l = None
-            else:
-                node.p.r = None
-        # Two black children
-        else:
-            # Get in-order calls could be run in parallel
-            pred, pred_dpth = self._nord_predecessor(node)
-            succ, succ_dpth = self._nord_successor(node)
+    def _replace_node(self, old_n, new_n):
+        new_n.p = old_n.p
+        new_n.l = old_n.l
+        new_n.r = old_n.r
+        new_n.is_b = old_n.is_b
 
-            if succ_dpth == pred_dpth:
-                    self._remove_black(succ) if succ.is_b else self._remove_red(succ)
+        # Old node is not root
+        if old_n.p:
+            if old_n.p.l == old_n:
+                old_n.p.l = new_n
+            else:
+                old_n.p.r = new_n
+
+    def _remove_red(self, node):
+        if node.p.l == node:
+            node.p.l = None
+        else:
+            node.p.r = None
 
     def _remove_black(self, node):
         pass
@@ -208,19 +213,70 @@ class RBTree:
 
         print('')
 
+    # Removes target node and replaces with either the in-order predecessor or successor
+    # Chooses more populated side of node
     def remove(self, key):
         node = self._get_node(key)
-        self._remove_black(node) if node.is_b else self._remove_red(node)
-        self.size -= 1
 
-    # Needs reworked to deal with edge cases: Key not in tree, empty tree
+        # Tree is not empty
+        if node:
+            # Get in-order calls could be run in parallell
+            pred, pred_dpth = self._nord_predecessor(node)
+            scsr, scsr_dpth = self._nord_successor(node)
+
+            # Depths are the same relative to node
+            if pred_dpth == scsr_dpth:
+                # Both are black
+                if pred.is_b and scsr.is_b:
+                    # Both are leaves OR successor is not a leaf - choose successor (arbitrary for both non-leaves)
+                    if (pred.l == pred.r and scsr.l == scsr.r) or scsr.r:
+                        self._remove_black(scsr)
+                        self._replace_node(node, scsr)
+                    # Predecessor is not a leaf and successor is a leaf - choose predecessor
+                    else:
+                        self._remove_black(pred)
+                        self._replace_node(node, pred)
+                # Predecessor is black, sucessor is red - choose predecessor
+                elif pred.is_b:
+                    self._remove_black(pred)
+                    self._replace_node(node, pred)
+                # Predecessor is red, successor is black - choose successor
+                elif scsr.is_b:
+                    self._remove_black(scsr)
+                    self._replace_node(node, scsr)
+                # Both are red - arbitrarily choose successor
+                else:
+                    self._remove_red(scsr)
+                    self._replace_node(node, scsr)
+            # Predecessor is further from node than successor - choose predecessor
+            elif pred_dpth > scsr_dpth:
+                self._remove_black(pred) if pred.is_b else self._remove_red(pred)
+                self._replace_node(node, pred)
+            # Successor is further from node than predecessor - choose sucessor
+            else:
+                self._remove_black(scsr) if scsr.is_b else self._remove_red(scsr)
+                self._replace_node(node, scsr)
+
+            self.size -= 1
+            return node.v
+
+        return None
+
     def get(self, key):
-        node = self.root
+        # Non-empty tree
+        if self.root:
+            node = self.root
 
-        while node.k != key:
-            node = node.l if key < node.k else node.r
-
-        return node
+            while node.k != key:
+                node = node.l if key < node.k else node.r
+                # Key not in tree
+                if not node: 
+                    return None
+            # Key found
+            return node.v
+        # Empty tree
+        else:
+            return None
 
     def size(self):
         return self.size
