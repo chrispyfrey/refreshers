@@ -5,6 +5,7 @@
 
 # TODO:
 #   Implement remove node:
+#       Handle first-child null from in-order functions
 #       Implement remove black node
 #   Test/verify correctness of node removal
 
@@ -184,7 +185,14 @@ class RBTree:
             node.p.r = None
 
     def _remove_black(self, node):
-        pass
+        if node.l:
+            node.l = None
+            self._replace_node(node, node.l)
+        elif node.r:
+            node.r = None
+            self._replace_node(node, node.r)
+        else:
+            pass
 
     def insert(self, key, value):
         parent = None
