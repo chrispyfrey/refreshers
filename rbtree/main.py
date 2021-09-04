@@ -19,7 +19,6 @@ class RBTree:
 
     def __init__(self):
         self.root = None
-        self.size = 0
     
     def _insert_rules(self, node):
         # Node is root
@@ -148,29 +147,32 @@ class RBTree:
 
         return n
 
-    def _replace_node(self, old_n, new_n):
-        new_n.p = old_n.p
-        new_n.l = old_n.l
-        new_n.r = old_n.r
-        new_n.is_b = old_n.is_b
+    def _replace(self, old, new):
+        new.p = old.p
+        new.l = old.l
+        new.r = old.r
+        new.is_b = old.is_b
 
         # Old node is not root
-        if old_n.p:
-            if old_n.p.l == old_n:
-                old_n.p.l = new_n
+        if old.p:
+            if old.p.l == old:
+                old.p.l = new
             else:
-                old_n.p.r = new_n
+                old.p.r = new
+        # Old node is root
+        else:
+            self.root = new
 
-    def _remove_red(self, node):
+    def _decouple_red(self, node):
         if node.p.l == node:
             node.p.l = None
         else:
             node.p.r = None
 
-    def _remove_black(self, node):
+    def _decouple_black(self, node):
         if node.r:
-            node.r = None
-            self._replace_node(node, node.r)
+            self._replace(node, node.r)
+            node.r.r = None
         else:
             pass
 
@@ -197,8 +199,6 @@ class RBTree:
             print(f'Inserting: {self.root.k}\n{self.root.k} is root')
 
         self._insert_rules(node)
-        self.size += 1
-
         print('')
 
     def remove(self, key):
@@ -207,14 +207,12 @@ class RBTree:
         # Tree is not empty
         if node:
             nord = self._nord_successor(node)
-            self._remove_black(nord) if nord.is_b else self._remove_red(nord)
+            self._decouple_black(nord) if nord.is_b else self._decouple_red(nord)
 
             if nord != node:
-                self._replace_node(node, nord)
-
-            self.size -= 1
+                self._replace(node, nord)
             return node.v
-
+        # Key not in tree
         return None
 
     def get(self, key):
@@ -232,9 +230,6 @@ class RBTree:
         # Empty tree
         else:
             return None
-
-    def size(self):
-        return self.size
 
 rbt = RBTree()
 test_nums = [34, 39, 28, 22, 11, 24, 27, 30, 29]
