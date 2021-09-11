@@ -1,0 +1,3 @@
+A red-black tree (RBT) is a version of a binary search tree (BST) which self-balances as data is added and removed. BSTs are simple in both practice and theory, but lack assurances that their primary advantage (fast searches) is guarenteed. RBTs utilize one additional node attribute (color) and a few insert and delete rules to maintain a search time-complexity of lg(n) (base-2 logarithm).
+
+To convert a BST to a RBT, a binary attribute must be added to the node structure. This attribute would ideally be stored as a single bit, but that option may not be available in your language of choice.
