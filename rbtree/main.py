@@ -163,18 +163,68 @@ class RBTree:
         else:
             self.root = new
 
-    def _decouple_red(self, node):
-        if node.p.l == node:
-            node.p.l = None
+    def _decouple(self, node):
+        if node.is_b:
+            if node.r:
+                self._replace(node, node.r)
+                return False
+            elif node.l:
+                self._replace(node, node.l)
+                return False
+            else:
+                if node.p.r == node:
+                    node.p.r = None
+                else:
+                    node.p.l = None
+                return True
         else:
-            node.p.r = None
+            if node.p.r == node:
+                node.p.r = None
+            else:
+                node.p.l = None
+            return False
 
-    def _decouple_black(self, node):
-        if node.r:
-            self._replace(node, node.r)
-            node.r.r = None
+    def _fix_height(self, node):
+        if node.p.r != node:
+            sibling = node.p.r
+
+            if not sibling.is_b:
+                self._left_rotate(node.p)
+                sibling = node.p.r
+            if sibling.r and not sibling.r.is_b:
+                sibling.r.is_b = True
+                self._left_rotate(node.p)
+            elif sibling.l and not sibling.l.is_b:
+                self._right_rotate(sibling)
+                self._left_rotate(node.p)
+                sibling.is_b = True
+            else:
+                sibling.is_black = False
+
+                if node.p.p and node.p.is_b:
+                    self._fix_height(node.p.p)
+                else:
+                    node.p.is_b = True
+            
         else:
-            pass
+            sibling = node.p.l
+            
+            if not sibling.is_b:
+                self._right_rotate(node.p)
+                sibling = node.p.l
+            if sibling.l and not sibling.l.is_b:
+                sibling.l.is_b = True
+                self._right_rotate(node.p)
+            elif sibling.r and not sibling.r.is_b:
+                self._left_rotate(sibling)
+                self._right_rotate(node.p)
+                sibling.is_b = True
+            else:
+                sibling.is_b = False
+                if node.p.p and node.p.is_b:
+                    self._fix_height(node.p.p);
+                else:
+                    node.p.is_b = True
 
     def insert(self, key, value):
         parent = None
@@ -204,10 +254,13 @@ class RBTree:
     def remove(self, key):
         node = self._get_node(key)
 
-        # Tree is not empty
+        # Target node found
         if node:
             nord = self._nord_successor(node)
-            self._decouple_black(nord) if nord.is_b else self._decouple_red(nord)
+            black_leaf = self._decouple(nord)
+
+            if black_leaf:
+                self._fix_height(nord)
 
             if nord != node:
                 self._replace(node, nord)
